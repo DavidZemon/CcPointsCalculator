@@ -217,3 +217,188 @@ client.test("Two small transactions", function () {
 %}
 
 ###
+
+POST http://localhost:8080/api/ccpc/calculate
+Content-Type: application/json
+Accept: application/json
+
+{
+    "transactions": [
+        {
+            "id": "c1",
+            "value": 0.00000,
+            "date": 12345678.9
+        },
+        {
+            "id": "c1",
+            "value": 0,
+            "date": 10002345678.912
+        },
+        {
+            "id": "c1",
+            "value": 1,
+            "date": 12345678.9
+        },
+        {
+            "id": "c1",
+            "value": 50.99499999999999999999999999999999,
+            "date": 12345678.9
+        },
+        {
+            "id": "c1",
+            "value": 50.995,
+            "date": 12345678.9
+        },
+        {
+            "id": "c1",
+            "value": 100.9949999999999999999999,
+            "date": 12345678.9
+        },
+        {
+            "id": "c1",
+            "value": 100.995,
+            "date": 12345678.9
+        },
+        {
+            "id": "c1",
+            "value": 120.00000000000000000,
+            "date": 12345678.9
+        },
+        {
+            "id": "c1",
+            "value": -0,
+            "date": 10002345678.912
+        },
+        {
+            "id": "c1",
+            "value": -1,
+            "date": 12345678.9
+        },
+        {
+            "id": "c1",
+            "value": -50.99499999999999999999999999999999,
+            "date": 12345678.9
+        },
+        {
+            "id": "c1",
+            "value": -50.995,
+            "date": 12345678.9
+        },
+        {
+            "id": "c1",
+            "value": -100.9949999999999999999999,
+            "date": 12345678.9
+        },
+        {
+            "id": "c1",
+            "value": -100.995,
+            "date": 12345678.9
+        },
+        {
+            "id": "c1",
+            "value": -120.00000000000000000,
+            "date": 12345678.9
+        },
+        {
+            "id": "c2",
+            "value": -0,
+            "date": 10002345678.912
+        },
+        {
+            "id": "c2",
+            "value": -1,
+            "date": 12345678.9
+        },
+        {
+            "id": "c2",
+            "value": -50.99499999999999999999999999999999,
+            "date": 12345678.9
+        },
+        {
+            "id": "c2",
+            "value": -50.995,
+            "date": 12345678.9
+        },
+        {
+            "id": "c2",
+            "value": -100.9949999999999999999999,
+            "date": 12345678.9
+        },
+        {
+            "id": "c2",
+            "value": -100.995,
+            "date": 12345678.9
+        },
+        {
+            "id": "c2",
+            "value": -120.00000000000000000,
+            "date": 12345678.9
+        },
+        {
+            "id": "c3",
+            "value": 0,
+            "date": 10002345678.912
+        },
+        {
+            "id": "c3",
+            "value": 1,
+            "date": 12345678.9
+        },
+        {
+            "id": "c3",
+            "value": 50.99499999999999999999999999999999,
+            "date": 12345678.9
+        },
+        {
+            "id": "c3",
+            "value": 50.995,
+            "date": 12345678.9
+        },
+        {
+            "id": "c3",
+            "value": 100.9949999999999999999999,
+            "date": 12345678.9
+        },
+        {
+            "id": "c3",
+            "value": 100.995,
+            "date": 12345678.9
+        },
+        {
+            "id": "c3",
+            "value": 120.00000000000000000,
+            "date": 12345678.9
+        }
+    ]
+}
+
+> {%
+client.test("Two small transactions", function () {
+    client.assert(response.status === 200, "Expected OK response");
+
+    var expected = {
+        "customer_count": 3,
+        "points_total": 0,
+        "customers": {
+            "c3": {
+                "id": "c3",
+                "transactions": 7,
+                "points": 214
+            },
+            "c1": {
+                "id": "c1",
+                "transactions": 15,
+                "points": 0
+            },
+            "c2": {
+                "id": "c2",
+                "transactions": 7,
+                "points": -214
+            }
+        }
+    };
+    client.assert(JSON.stringify(response.body) === JSON.stringify(expected), 'Expected \n\t' + JSON.stringify(response.body) + '\nto equal\n\t' + JSON.stringify(expected));
+});
+%}
+
+###
