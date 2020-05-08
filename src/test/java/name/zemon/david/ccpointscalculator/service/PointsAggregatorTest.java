@@ -59,4 +59,91 @@ class PointsAggregatorTest {
                            )
                            .build());
     }
+
+    @Test
+    void test_aggregate_oneTransaction_51Dollars() {
+        assertThat(this.testable.aggregate(
+            Transactions.builder().transactions(
+                Collections.singletonList(
+                    Transaction.builder()
+                        .id("customer1")
+                        .date(Instant.now())
+                        .value(BigDecimal.valueOf(51))
+                        .build()
+                )
+            ).build()
+        ))
+            .isEqualTo(PointsAggregation.builder()
+                           .customerCount(1)
+                           .pointsTotal(1)
+                           .customers(
+                               Collections.singletonMap(
+                                   "customer1",
+                                   Customer.builder()
+                                       .id("customer1")
+                                       .transactions(1)
+                                       .points(1)
+                                       .build()
+                               )
+                           )
+                           .build());
+    }
+
+    @Test
+    void test_aggregate_oneReturnTransaction_51Dollars() {
+        assertThat(this.testable.aggregate(
+            Transactions.builder().transactions(
+                Collections.singletonList(
+                    Transaction.builder()
+                        .id("customer1")
+                        .date(Instant.now())
+                        .value(BigDecimal.valueOf(-51))
+                        .build()
+                )
+            ).build()
+        ))
+            .isEqualTo(PointsAggregation.builder()
+                           .customerCount(1)
+                           .pointsTotal(-1)
+                           .customers(
+                               Collections.singletonMap(
+                                   "customer1",
+                                   Customer.builder()
+                                       .id("customer1")
+                                       .transactions(1)
+                                       .points(-1)
+                                       .build()
+                               )
+                           )
+                           .build());
+    }
+
+    @Test
+    void test_aggregate_oneTransaction_50_99499999() {
+        assertThat(this.testable.aggregate(
+            Transactions.builder().transactions(
+                Collections.singletonList(
+                    Transaction.builder()
+                        .id("customer1")
+                        .date(Instant.now())
+                        .value(new BigDecimal("50.99499999999999999999"))
+                        .build()
+                )
+            ).build()
+        ))
+            .isEqualTo(PointsAggregation.builder()
+                           .customerCount(1)
+                           .pointsTotal(0)
+                           .customers(
+                               Collections.singletonMap(
+                                   "customer1",
+                                   Customer.builder()
+                                       .id("customer1")
+                                       .transactions(1)
+                                       .points(0)
+                                       .build()
+                               )
+                           )
+                           .build());
+    }
 }
