@@ -31,22 +31,9 @@ public class PointsAggregator {
         final long[]                pointsTotal = {0};
         final Map<String, Customer> customers   = new HashMap<>();
         transactionMap.forEach((id, customerTransactions) -> {
-            final long points = customerTransactions.stream().mapToLong(tx -> {
-                final boolean    isReturn = BigDecimal.ZERO.max(tx.getValue()).equals(BigDecimal.ZERO);
-                final BigDecimal absolute = tx.getValue().abs();
-
-                long txPointSingles = 0;
-                long txPointDoubles = 0;
-                if (FIFTY.max(absolute).equals(absolute)) {
-                    final BigDecimal rounded = absolute.setScale(2, RoundingMode.HALF_EVEN);
-                    txPointSingles = Long.min(rounded.longValue() - 50, 50);
-                    if (HUNDRED.max(absolute).equals(absolute)) {
-                        txPointDoubles = (rounded.longValue() - 100) * 2;
-                    }
-                }
-                final long txPointsTotal = txPointSingles + txPointDoubles;
-                return isReturn ? txPointsTotal * -1 : txPointsTotal;
-            }).sum();
+            final long points = customerTransactions.stream()
+                                    .mapToLong(this::calculatePoints)
+                                    .sum();
             pointsTotal[0] += points;
             customers.put(id, Customer.builder()
                                   .id(id)
@@ -60,5 +47,22 @@ public class PointsAggregator {
                    .pointsTotal(pointsTotal[0])
                    .customers(customers)
                    .build();
+    }
+
+    private long calculatePoints(@Nonnull final Transaction tx) {
+        final boolean    isReturn = BigDecimal.ZERO.max(tx.getValue()).equals(BigDecimal.ZERO);
+        final BigDecimal absolute = tx.getValue().abs();
+
+        long txPointSingles = 0;
+        long txPointDoubles = 0;
+        if (FIFTY.max(absolute).equals(absolute)) {
+            final BigDecimal rounded = absolute.setScale(2, RoundingMode.HALF_EVEN);
+            txPointSingles = Long.min(rounded.longValue() - 50, 50);
+            if (HUNDRED.max(absolute).equals(absolute)) {
+                txPointDoubles = (rounded.longValue() - 100) * 2;
+            }
+        }
+        final long txPointsTotal = txPointSingles + txPointDoubles;
+        return isReturn ? txPointsTotal * -1 : txPointsTotal;
     }
 }
