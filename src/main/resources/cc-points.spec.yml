@@ -1,0 +1,102 @@
+openapi: "3.0.0"
+info:
+  title: "Credit Card Points Calculator"
+  version: "1.0"
+  description: "Calculate earned credit card points for each customer"
+servers:
+  - url: "https://{environment}/api/ccpc"
+    variables:
+      environment:
+        enum:
+          - "localhost:8080"
+        default: "localhost:8080"
+tags:
+- name: "Points"
+  description: "Credit card points services"
+paths:
+  /calculate:
+    post:
+      tags:
+        - "Points"
+      summary: "Aggregate points earned for each customer and return their totals."
+      requestBody:
+        description: "Input transactions"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Transactions'
+      responses:
+        200:
+          description: "Points were calculated successfully"
+          content:
+            "application/json":
+              schema:
+                $ref: '#/components/schemas/PointsAggregation'
+        401:
+          description: "Username and password are invalid"
+components:
+  schemas:
+    Transactions:
+      type: object
+      nullable: false
+      properties:
+        transactions:
+          type: array
+          nullable: false
+          items:
+            $ref: '#/components/schemas/Transaction'
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: false
+          description: "Customer ID"
+        value:
+          type: number
+          nullable: false
+          format: float
+          description: "Value of this transaction"
+        date:
+          type: number
+          nullable: false
+          format: float
+          description: "Date that the transaction was performed, formatted as seconds since epoch"
+    PointsAggregation:
+      type: object
+      description: "Processed result, containing aggregate points and metadata on customer transactions"
+      properties:
+        customer_count:
+          type: number
+          nullable: false
+          description: "Number of customers processed"
+        points_total:
+          type: number
+          nullable: false
+          description: "Sum of all credit card points earned by all customers"
+        customers:
+          type: object
+          nullable: false
+          description: "Mapping of customer IDs to customer details"
+          additionalProperties:
+            $ref: "#/components/schemas/Customer"
+    Customer:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: false
+          description: "Unique identifier for the customer"
+        name:
+          type: string
+          nullable: false
+          description: "Customer's name"
+        transactions:
+          type: number
+          nullable: false
+          description: "Number of transactions performed by this customer"
+        points:
+          type: number
+          nullable: false
+          description: "Number of points that this customer has earned"
