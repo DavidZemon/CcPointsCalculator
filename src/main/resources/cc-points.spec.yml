@@ -33,8 +33,10 @@ paths:
             "application/json":
               schema:
                 $ref: '#/components/schemas/PointsAggregation'
-        401:
-          description: "Username and password are invalid"
+        400:
+          description: "The request is invalid. This may be used when no request body is provided or the properties in the request body are invalid."
+        415:
+          description: "This service only supports JSON request and response bodies. Any other content type submitted or requested will result in this error."
 components:
   schemas:
     Transactions:
