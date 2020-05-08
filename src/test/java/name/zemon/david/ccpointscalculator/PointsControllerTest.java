@@ -1,5 +1,6 @@
 package name.zemon.david.ccpointscalculator;
 
+import name.zemon.david.ccpointscalculator.pojo.Customer;
 import name.zemon.david.ccpointscalculator.pojo.PointsAggregation;
 import name.zemon.david.ccpointscalculator.pojo.Transaction;
 import name.zemon.david.ccpointscalculator.pojo.Transactions;
@@ -16,7 +17,10 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.eq;
@@ -28,10 +32,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(PointsController.class)
 class PointsControllerTest {
-    private static final String SAMPLE_ID_1      = "some id";
+    private static final String SAMPLE_ID_1      = "someId";
     private static final String SAMPLE_VALUE_1   = "12.34";
     private static final long   SAMPLE_DATE_1_MS = 12345678900L;
     private static final String SAMPLE_DATE_1_S  = "12345678.9";
+    private static final String SAMPLE_ID_2      = "someId2";
+    private static final String SAMPLE_VALUE_2   = "56.78";
+    private static final long   SAMPLE_DATE_2_MS = 10002345678912L;
+    private static final String SAMPLE_DATE_2_S  = "10002345678.912";
 
     @MockBean
     private PointsAggregator mockPointsAggregator;
@@ -250,5 +258,89 @@ class PointsControllerTest {
             .andExpect(jsonPath("$.points_total", is(0)))
             .andExpect(jsonPath("$.customers").isMap())
             .andExpect(jsonPath("$.customers.length()", is(0)));
+    }
+
+    @Test
+    void test_multipleTransactions_canRespondWithMultipleCustomers() throws Exception {
+        final Transactions expectedTransactions = Transactions.builder()
+                                                      .transactions(Arrays.asList(
+                                                          Transaction.builder()
+                                                              .id(SAMPLE_ID_1)
+                                                              .value(new BigDecimal(SAMPLE_VALUE_1))
+                                                              .date(Instant.ofEpochMilli(SAMPLE_DATE_1_MS))
+                                                              .build(),
+                                                          Transaction.builder()
+                                                              .id(SAMPLE_ID_2)
+                                                              .value(new BigDecimal(SAMPLE_VALUE_2))
+                                                              .date(Instant.ofEpochMilli(SAMPLE_DATE_2_MS))
+                                                              .build()
+                                                      ))
+                                                      .build();
+
+        when(this.mockPointsAggregator.aggregate(eq(expectedTransactions)))
+            .thenReturn(PointsAggregation.builder()
+                            .customerCount(2)
+                            .pointsTotal(123)
+                            .customers(
+                                Stream.of(new Object[][]{
+                                    {
+                                        SAMPLE_ID_1,
+                                        Customer.builder()
+                                            .id(SAMPLE_ID_1)
+                                            .name("Sample 1")
+                                            .points(123)
+                                            .transactions(456)
+                                            .build()
+                                    },
+                                    {
+                                        SAMPLE_ID_2,
+                                        Customer.builder()
+                                            .id(SAMPLE_ID_2)
+                                            .name("Sample 2")
+                                            .points(789)
+                                            .transactions(321)
+                                            .build()
+                                    },
+                                }).collect(Collectors.toMap(data -> (String) data[0], data -> (Customer) data[1]))
+                            )
+                            .build()
+            );
+
+        this.mockMvc.perform(post("/calculate")
+                                 .contentType(MediaType.APPLICATION_JSON)
+                                 .content(
+                                     // language=JSON
+                                     "{\n" +
+                                         "  \"transactions\": [\n" +
+                                         "    {\n" +
+                                         "      \"id\": \"" + SAMPLE_ID_1 + "\",\n" +
+                                         "      \"value\": " + SAMPLE_VALUE_1 + ",\n" +
+                                         "      \"date\": " + SAMPLE_DATE_1_S + "\n" +
+                                         "    },\n" +
+                                         "    {\n" +
+                                         "      \"id\": \"" + SAMPLE_ID_2 + "\",\n" +
+                                         "      \"value\": " + SAMPLE_VALUE_2 + ",\n" +
+                                         "      \"date\": " + SAMPLE_DATE_2_S + "\n" +
+                                         "    }\n" +
+                                         "  ]\n" +
+                                         "}"
+                                 )
+                                 .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().is(HttpStatus.OK.value()))
+            .andExpect(jsonPath("$").isMap())
+            .andExpect(jsonPath("$.customer_count", is(2)))
+            .andExpect(jsonPath("$.points_total", is(123)))
+            .andExpect(jsonPath("$.customers").isMap())
+            .andExpect(jsonPath("$.customers.length()", is(2)))
+            .andExpect(jsonPath("$.customers." + SAMPLE_ID_1).isMap())
+            .andExpect(jsonPath("$.customers." + SAMPLE_ID_1 + ".id", is(SAMPLE_ID_1)))
+            .andExpect(jsonPath("$.customers." + SAMPLE_ID_1 + ".name", is("Sample 1")))
+            .andExpect(jsonPath("$.customers." + SAMPLE_ID_1 + ".points", is(123)))
+            .andExpect(jsonPath("$.customers." + SAMPLE_ID_1 + ".transactions", is(456)))
+            .andExpect(jsonPath("$.customers." + SAMPLE_ID_2).isMap())
+            .andExpect(jsonPath("$.customers." + SAMPLE_ID_2 + ".id", is(SAMPLE_ID_2)))
+            .andExpect(jsonPath("$.customers." + SAMPLE_ID_2 + ".name", is("Sample 2")))
+            .andExpect(jsonPath("$.customers." + SAMPLE_ID_2 + ".points", is(789)))
+            .andExpect(jsonPath("$.customers." + SAMPLE_ID_2 + ".transactions", is(321)));
     }
 }
