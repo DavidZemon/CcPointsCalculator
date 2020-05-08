@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.Collection;
 
 @Data
@@ -12,5 +13,6 @@ import java.util.Collection;
 @AllArgsConstructor
 public class Transactions {
     @Nonnull
+    @NotNull
     private final Collection<Transaction> transactions;
 }
