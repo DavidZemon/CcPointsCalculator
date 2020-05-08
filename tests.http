@@ -1,0 +1,44 @@
+POST http://localhost:8080/api/ccpc/calculate
+Content-Type: application/json
+Accept: application/json
+
+{
+    "transactions": [
+        {
+            "id": "someId",
+            "value": 12.34,
+            "date": 12345678.9
+        },
+        {
+            "id": "someId2",
+            "value": 56.78,
+            "date": 10002345678.912
+        }
+    ]
+}
+
+> {%
+client.test("The test", function () {
+    client.assert(response.status === 200, "Expected OK response");
+
+    var expected = {
+        customer_count: 2,
+        points_total: 6,
+        customers: {
+            someId: {
+                id: "someId",
+                transactions: 1,
+                points: 0
+            },
+            someId2: {
+                id: "someId2",
+                transactions: 1,
+                points: 6
+            }
+        }
+    };
+    client.assert(JSON.stringify(response.body) === JSON.stringify(expected), 'Expected \n\t' + JSON.stringify(response.body) + '\nto equal\n\t' + JSON.stringify(expected));
+});
+%}
+
+###
