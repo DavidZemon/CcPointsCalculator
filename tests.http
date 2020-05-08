@@ -1,3 +1,178 @@
+# This file is used for running end-to-end tests from a JetBrains IDE
+# The formal specification for this file can be found at https://github.com/JetBrains/http-request-in-editor-spec
+# And general help docs can be found at https://www.jetbrains.com/help/idea/http-client-in-product-code-editor.html
+
+POST http://localhost:8080/api/ccpc/calculate
+Content-Type: application/json
+Accept: application/json
+
+> {%
+client.test("No request body", function () {
+    client.assert(response.status === 400, "Expected BAD_REQUEST status");
+});
+%}
+
+###
+
+POST http://localhost:8080/api/ccpc/calculate
+Content-Type: application/json
+Accept: application/json
+
+{}
+
+> {%
+client.test("Empty request body", function () {
+    client.assert(response.status === 400, "Expected BAD_REQUEST status");
+});
+%}
+
+###
+
+POST http://localhost:8080/api/ccpc/calculate
+Content-Type: application/json
+Accept: application/json
+
+{
+    "transactions": null
+}
+
+> {%
+client.test("Empty transactions list", function () {
+    client.assert(response.status === 400, "Expected BAD_REQUEST status");
+});
+%}
+
+###
+
+POST http://localhost:8080/api/ccpc/calculate
+Content-Type: application/json
+Accept: application/json
+
+{
+    "transactions": [
+        {
+            "value": 12.34,
+            "date": 12345678.9
+        }
+    ]
+}
+
+> {%
+client.test("No customer ID", function () {
+    client.assert(response.status === 400, "Expected BAD_REQUEST status");
+});
+%}
+
+###
+
+POST http://localhost:8080/api/ccpc/calculate
+Content-Type: application/json
+Accept: application/json
+
+{
+    "transactions": [
+        {
+            "id": "someId",
+            "date": 12345678.9
+        }
+    ]
+}
+
+> {%
+client.test("No transaction value", function () {
+    client.assert(response.status === 400, "Expected BAD_REQUEST status");
+});
+%}
+
+###
+
+POST http://localhost:8080/api/ccpc/calculate
+Content-Type: application/json
+Accept: application/json
+
+{
+    "transactions": [
+        {
+            "id": "someId",
+            "value": 12.34
+        }
+    ]
+}
+
+> {%
+client.test("No transaction date", function () {
+    client.assert(response.status === 400, "Expected BAD_REQUEST status");
+});
+%}
+
+###
+
+POST http://localhost:8080/api/ccpc/calculate
+Content-Type: application/json
+Accept: application/json
+
+{
+    "transactions": [
+        {
+            "id": null,
+            "value": 12.34,
+            "date": 12345678.9
+        }
+    ]
+}
+
+> {%
+client.test("Null customer ID", function () {
+    client.assert(response.status === 400, "Expected BAD_REQUEST status");
+});
+%}
+
+###
+
+POST http://localhost:8080/api/ccpc/calculate
+Content-Type: application/json
+Accept: application/json
+
+{
+    "transactions": [
+        {
+            "id": "someId",
+            "value": null,
+            "date": 12345678.9
+        }
+    ]
+}
+
+> {%
+client.test("Null transaction value", function () {
+    client.assert(response.status === 400, "Expected BAD_REQUEST status");
+});
+%}
+
+###
+
+POST http://localhost:8080/api/ccpc/calculate
+Content-Type: application/json
+Accept: application/json
+
+{
+    "transactions": [
+        {
+            "id": "someId",
+            "value": 12.34,
+            "date": null
+        }
+    ]
+}
+
+> {%
+client.test("Null transaction date", function () {
+    client.assert(response.status === 400, "Expected BAD_REQUEST status");
+});
+%}
+
+###
+
 POST http://localhost:8080/api/ccpc/calculate
 Content-Type: application/json
 Accept: application/json
@@ -18,7 +193,7 @@ Accept: application/json
 }
 
 > {%
-client.test("The test", function () {
+client.test("Two small transactions", function () {
     client.assert(response.status === 200, "Expected OK response");
 
     var expected = {
