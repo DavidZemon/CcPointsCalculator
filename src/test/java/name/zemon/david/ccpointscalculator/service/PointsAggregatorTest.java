@@ -134,14 +134,43 @@ class PointsAggregatorTest {
         ))
             .isEqualTo(PointsAggregation.builder()
                            .customerCount(1)
-                           .pointsTotal(53)
+                           .pointsTotal(52)
                            .customers(
                                Collections.singletonMap(
                                    "customer1",
                                    Customer.builder()
                                        .id("customer1")
                                        .transactions(1)
-                                       .points(53)
+                                       .points(52)
+                                       .build()
+                               )
+                           )
+                           .build());
+    }
+
+    @Test
+    void test_aggregate_oneTransaction_120Dollars() {
+        assertThat(this.testable.aggregate(
+            Transactions.builder().transactions(
+                Collections.singletonList(
+                    Transaction.builder()
+                        .id("customer1")
+                        .date(Instant.now())
+                        .value(BigDecimal.valueOf(120))
+                        .build()
+                )
+            ).build()
+        ))
+            .isEqualTo(PointsAggregation.builder()
+                           .customerCount(1)
+                           .pointsTotal(90)
+                           .customers(
+                               Collections.singletonMap(
+                                   "customer1",
+                                   Customer.builder()
+                                       .id("customer1")
+                                       .transactions(1)
+                                       .points(90)
                                        .build()
                                )
                            )
@@ -163,14 +192,14 @@ class PointsAggregatorTest {
         ))
             .isEqualTo(PointsAggregation.builder()
                            .customerCount(1)
-                           .pointsTotal(200)
+                           .pointsTotal(150)
                            .customers(
                                Collections.singletonMap(
                                    "customer1",
                                    Customer.builder()
                                        .id("customer1")
                                        .transactions(1)
-                                       .points(200)
+                                       .points(150)
                                        .build()
                                )
                            )
@@ -250,14 +279,43 @@ class PointsAggregatorTest {
         ))
             .isEqualTo(PointsAggregation.builder()
                            .customerCount(1)
-                           .pointsTotal(-53)
+                           .pointsTotal(-52)
                            .customers(
                                Collections.singletonMap(
                                    "customer1",
                                    Customer.builder()
                                        .id("customer1")
                                        .transactions(1)
-                                       .points(-53)
+                                       .points(-52)
+                                       .build()
+                               )
+                           )
+                           .build());
+    }
+
+    @Test
+    void test_aggregate_oneReturnTransaction_120Dollars() {
+        assertThat(this.testable.aggregate(
+            Transactions.builder().transactions(
+                Collections.singletonList(
+                    Transaction.builder()
+                        .id("customer1")
+                        .date(Instant.now())
+                        .value(BigDecimal.valueOf(-120))
+                        .build()
+                )
+            ).build()
+        ))
+            .isEqualTo(PointsAggregation.builder()
+                           .customerCount(1)
+                           .pointsTotal(-90)
+                           .customers(
+                               Collections.singletonMap(
+                                   "customer1",
+                                   Customer.builder()
+                                       .id("customer1")
+                                       .transactions(1)
+                                       .points(-90)
                                        .build()
                                )
                            )
@@ -279,14 +337,14 @@ class PointsAggregatorTest {
         ))
             .isEqualTo(PointsAggregation.builder()
                            .customerCount(1)
-                           .pointsTotal(-200)
+                           .pointsTotal(-150)
                            .customers(
                                Collections.singletonMap(
                                    "customer1",
                                    Customer.builder()
                                        .id("customer1")
                                        .transactions(1)
-                                       .points(-200)
+                                       .points(-150)
                                        .build()
                                )
                            )
@@ -444,15 +502,15 @@ class PointsAggregatorTest {
         );
 
         assertThat(actual.getCustomerCount()).isEqualTo(2);
-        assertThat(actual.getPointsTotal()).isEqualTo(80);
+        assertThat(actual.getPointsTotal()).isEqualTo(70);
         assertThat(actual.getCustomers())
             .hasSize(2)
             .containsKeys("customer1", "customer2");
         assertThat(actual.getCustomers().get("customer1").getId()).isEqualTo("customer1");
-        assertThat(actual.getCustomers().get("customer1").getPoints()).isEqualTo(155);
+        assertThat(actual.getCustomers().get("customer1").getPoints()).isEqualTo(135);
         assertThat(actual.getCustomers().get("customer1").getTransactions()).isEqualTo(3);
         assertThat(actual.getCustomers().get("customer2").getId()).isEqualTo("customer2");
-        assertThat(actual.getCustomers().get("customer2").getPoints()).isEqualTo(-75);
+        assertThat(actual.getCustomers().get("customer2").getPoints()).isEqualTo(-65);
         assertThat(actual.getCustomers().get("customer2").getTransactions()).isEqualTo(2);
     }
 }

@@ -39,7 +39,7 @@ public class PointsAggregator {
                 long txPointDoubles = 0;
                 if (FIFTY.max(absolute).equals(absolute)) {
                     final BigDecimal rounded = absolute.setScale(2, RoundingMode.HALF_EVEN);
-                    txPointSingles = rounded.longValue() - 50;
+                    txPointSingles = Long.min(rounded.longValue() - 50, 50);
                     if (HUNDRED.max(absolute).equals(absolute)) {
                         txPointDoubles = (rounded.longValue() - 100) * 2;
                     }

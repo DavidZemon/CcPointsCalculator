@@ -373,7 +373,7 @@ Accept: application/json
 }
 
 > {%
-client.test("Two small transactions", function () {
+client.test("Big combo test", function () {
     client.assert(response.status === 200, "Expected OK response");
 
     var expected = {
@@ -383,7 +383,7 @@ client.test("Two small transactions", function () {
             "c3": {
                 "id": "c3",
                 "transactions": 7,
-                "points": 214
+                "points": 193
             },
             "c1": {
                 "id": "c1",
@@ -393,7 +393,7 @@ client.test("Two small transactions", function () {
             "c2": {
                 "id": "c2",
                 "transactions": 7,
-                "points": -214
+                "points": -193
             }
         }
     };
