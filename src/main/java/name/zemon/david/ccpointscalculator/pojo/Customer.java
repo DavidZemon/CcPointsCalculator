@@ -12,8 +12,6 @@ import javax.annotation.Nonnull;
 public class Customer {
     @Nonnull
     private final String id;
-    @Nonnull
-    private final String name;
     private final long   transactions;
     private final long   points;
 }

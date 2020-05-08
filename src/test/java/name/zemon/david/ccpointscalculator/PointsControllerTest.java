@@ -287,7 +287,6 @@ class PointsControllerTest {
                                         SAMPLE_ID_1,
                                         Customer.builder()
                                             .id(SAMPLE_ID_1)
-                                            .name("Sample 1")
                                             .points(123)
                                             .transactions(456)
                                             .build()
@@ -296,7 +295,6 @@ class PointsControllerTest {
                                         SAMPLE_ID_2,
                                         Customer.builder()
                                             .id(SAMPLE_ID_2)
-                                            .name("Sample 2")
                                             .points(789)
                                             .transactions(321)
                                             .build()
@@ -334,12 +332,10 @@ class PointsControllerTest {
             .andExpect(jsonPath("$.customers.length()", is(2)))
             .andExpect(jsonPath("$.customers." + SAMPLE_ID_1).isMap())
             .andExpect(jsonPath("$.customers." + SAMPLE_ID_1 + ".id", is(SAMPLE_ID_1)))
-            .andExpect(jsonPath("$.customers." + SAMPLE_ID_1 + ".name", is("Sample 1")))
             .andExpect(jsonPath("$.customers." + SAMPLE_ID_1 + ".points", is(123)))
             .andExpect(jsonPath("$.customers." + SAMPLE_ID_1 + ".transactions", is(456)))
             .andExpect(jsonPath("$.customers." + SAMPLE_ID_2).isMap())
             .andExpect(jsonPath("$.customers." + SAMPLE_ID_2 + ".id", is(SAMPLE_ID_2)))
-            .andExpect(jsonPath("$.customers." + SAMPLE_ID_2 + ".name", is("Sample 2")))
             .andExpect(jsonPath("$.customers." + SAMPLE_ID_2 + ".points", is(789)))
             .andExpect(jsonPath("$.customers." + SAMPLE_ID_2 + ".transactions", is(321)));
     }

@@ -88,10 +88,6 @@ components:
           type: string
           nullable: false
           description: "Unique identifier for the customer"
-        name:
-          type: string
-          nullable: false
-          description: "Customer's name"
         transactions:
           type: number
           nullable: false
