@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -133,14 +134,14 @@ class PointsAggregatorTest {
         ))
             .isEqualTo(PointsAggregation.builder()
                            .customerCount(1)
-                           .pointsTotal(52)
+                           .pointsTotal(53)
                            .customers(
                                Collections.singletonMap(
                                    "customer1",
                                    Customer.builder()
                                        .id("customer1")
                                        .transactions(1)
-                                       .points(52)
+                                       .points(53)
                                        .build()
                                )
                            )
@@ -162,14 +163,14 @@ class PointsAggregatorTest {
         ))
             .isEqualTo(PointsAggregation.builder()
                            .customerCount(1)
-                           .pointsTotal(150)
+                           .pointsTotal(200)
                            .customers(
                                Collections.singletonMap(
                                    "customer1",
                                    Customer.builder()
                                        .id("customer1")
                                        .transactions(1)
-                                       .points(150)
+                                       .points(200)
                                        .build()
                                )
                            )
@@ -249,14 +250,14 @@ class PointsAggregatorTest {
         ))
             .isEqualTo(PointsAggregation.builder()
                            .customerCount(1)
-                           .pointsTotal(-52)
+                           .pointsTotal(-53)
                            .customers(
                                Collections.singletonMap(
                                    "customer1",
                                    Customer.builder()
                                        .id("customer1")
                                        .transactions(1)
-                                       .points(-52)
+                                       .points(-53)
                                        .build()
                                )
                            )
@@ -278,14 +279,14 @@ class PointsAggregatorTest {
         ))
             .isEqualTo(PointsAggregation.builder()
                            .customerCount(1)
-                           .pointsTotal(-150)
+                           .pointsTotal(-200)
                            .customers(
                                Collections.singletonMap(
                                    "customer1",
                                    Customer.builder()
                                        .id("customer1")
                                        .transactions(1)
-                                       .points(-150)
+                                       .points(-200)
                                        .build()
                                )
                            )
@@ -406,5 +407,52 @@ class PointsAggregatorTest {
                                )
                            )
                            .build());
+    }
+
+    @Test
+    void test_aggregate_comboTransactions() {
+        final PointsAggregation actual = this.testable.aggregate(
+            Transactions.builder().transactions(
+                Arrays.asList(
+                    Transaction.builder()
+                        .id("customer1")
+                        .date(Instant.now())
+                        .value(BigDecimal.valueOf(55))
+                        .build(),
+                    Transaction.builder()
+                        .id("customer1")
+                        .date(Instant.now())
+                        .value(BigDecimal.valueOf(90))
+                        .build(),
+                    Transaction.builder()
+                        .id("customer1")
+                        .date(Instant.now())
+                        .value(BigDecimal.valueOf(120))
+                        .build(),
+                    Transaction.builder()
+                        .id("customer2")
+                        .date(Instant.now())
+                        .value(BigDecimal.valueOf(55))
+                        .build(),
+                    Transaction.builder()
+                        .id("customer2")
+                        .date(Instant.now())
+                        .value(BigDecimal.valueOf(-110))
+                        .build()
+                )
+            ).build()
+        );
+
+        assertThat(actual.getCustomerCount()).isEqualTo(2);
+        assertThat(actual.getPointsTotal()).isEqualTo(80);
+        assertThat(actual.getCustomers())
+            .hasSize(2)
+            .containsKeys("customer1", "customer2");
+        assertThat(actual.getCustomers().get("customer1").getId()).isEqualTo("customer1");
+        assertThat(actual.getCustomers().get("customer1").getPoints()).isEqualTo(155);
+        assertThat(actual.getCustomers().get("customer1").getTransactions()).isEqualTo(3);
+        assertThat(actual.getCustomers().get("customer2").getId()).isEqualTo("customer2");
+        assertThat(actual.getCustomers().get("customer2").getPoints()).isEqualTo(-75);
+        assertThat(actual.getCustomers().get("customer2").getTransactions()).isEqualTo(2);
     }
 }
