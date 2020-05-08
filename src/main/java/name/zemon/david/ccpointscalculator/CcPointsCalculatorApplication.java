@@ -5,9 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class CcPointsCalculatorApplication {
-
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         SpringApplication.run(CcPointsCalculatorApplication.class, args);
     }
-
 }
